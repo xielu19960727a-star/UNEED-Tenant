@@ -57,9 +57,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Micr
 .chart-box{width:100%;height:280px;}
 table{width:100%;border-collapse:collapse;}
 thead th{background:#F9FAFB;padding:10px 12px;text-align:left;font-size:12px;font-weight:600;color:#6B7280;text-transform:uppercase;letter-spacing:0.3px;border-bottom:1px solid #E5E7EB;white-space:nowrap;}
-thead th.num{text-align:right;}
+thead th.num, thead th.center{text-align:center;}
 tbody td{padding:10px 12px;border-bottom:1px solid #F3F4F6;font-size:13px;vertical-align:middle;}
-tbody td.num{text-align:right;font-family:"JetBrains Mono","Fira Code",monospace;}
+tbody td.num, tbody td.center{text-align:center;font-family:"JetBrains Mono","Fira Code",monospace;}
 tbody tr:nth-child(even){background:#FAFBFC;}
 tbody tr:hover{background:#F0F7FF;}
 .badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:10px;font-size:12px;font-weight:600;white-space:nowrap;}
@@ -176,8 +176,6 @@ tfoot td.num{text-align:right;font-family:"JetBrains Mono","Fira Code",monospace
 <header class="topbar">
 <div class="topbar-left"><span class="topbar-title" id="pageTitle">总览</span></div>
 <div class="topbar-right">
-<select class="filter-select" id="regionFilter" onchange="onRegionChange()"><option value="all">全部区域</option><option value="A">A 区</option><option value="B">B 区</option><option value="C">C 区</option><option value="D">D 区</option></select>
-<div class="search-box"><span class="si">&#x1F50D;</span><input type="text" placeholder="搜索租户..." id="globalSearch" oninput="onGlobalSearch()"></div>
 <div class="noti-bell" onclick="toggleNotif()" title="通知">&#x1F514;<span class="bdot" id="notiDot"></span></div>
 <div class="user-avatar" title="管理员">管</div>
 </div>
@@ -221,21 +219,46 @@ tfoot td.num{text-align:right;font-family:"JetBrains Mono","Fira Code",monospace
 <div class="card-header"><h3>机柜分布</h3><button class="btn btn-outline btn-sm" onclick="openExport('机柜分布报告')">导出报告</button></div>
 <div class="card-body" style="padding:0">
 <div style="padding:16px 20px;overflow-x:auto;">
-<div class="toolbar"><div class="toolbar-left"><button class="btn btn-primary" onclick="openModal('modalAddTenant')">+ 新增租户</button><button class="btn btn-outline" onclick="openModal('modalBatchAssign')">批量分配</button></div><div class="toolbar-right"><div class="search-box" style="margin-left:8px"><span class="si">&#x1F50D;</span><input type="text" placeholder="搜索设备名称/MappingID..." id="cabSearch" oninput="renderCabTable()" style="width:220px"></div><button class="btn btn-primary btn-sm" onclick="renderCabTable()" style="margin-left:4px">搜索</button><button class="btn btn-outline btn-sm" onclick="resetCabSearch()" style="margin-left:4px">重置</button><select class="filter-select" id="cabStatusFilter" onchange="renderCabTable()"><option value="all">全部状态</option><option value="rented">已出租</option><option value="pre-alloc">预分配</option><option value="free">空闲</option></select></div></div>
+<div class="toolbar">
+  <div class="toolbar-left">
+    <button class="btn btn-primary" onclick="openModal('modalAddTenant')">+ 新增租户</button>
+    <button class="btn btn-outline" onclick="openModal('modalBatchAssign')">批量分配</button>
+  </div>
+  <div class="toolbar-right">
+    <select class="filter-select" id="regionFilter"><option value="all">全部区域</option><option value="A">A 区</option><option value="B">B 区</option><option value="C">C 区</option><option value="D">D 区</option></select>
+    <div class="search-box" style="margin-left:8px"><span class="si">&#x1F50D;</span><input type="text" placeholder="搜索设备/Mapping/归属租户..." id="cabSearch" style="width:200px"></div>
+    <button class="btn btn-primary btn-sm" onclick="renderCabTable()" style="margin-left:4px">搜索</button>
+    <button class="btn btn-outline btn-sm" onclick="resetCabSearch()" style="margin-left:4px">重置</button>
+    <select class="filter-select" id="cabStatusFilter"><option value="all">全部状态</option><option value="rented">已出租</option><option value="pre-alloc">预分配</option><option value="free">空闲</option></select>
+  </div>
+</div>
 <table id="cabTable"><thead><tr><th>区域</th><th>设备名称</th><th>MappingID</th><th>状态</th><th>归属租户</th><th>租约到期日</th><th>操作</th></tr></thead><tbody id="cabTableBody"></tbody></table>
 </div>
 </div>
 </div>
 <div class="card">
-<div class="card-header"><h3>租户列表</h3><button class="btn btn-primary btn-sm" onclick="openModal('modalAddTenant')">+ 新增租户</button></div>
+<div class="card-header"><h3>租户列表</h3></div>
 <div class="card-body" style="padding:0">
-<table><thead><tr><th>租户名称</th><th>联系人</th><th>电话</th><th>机柜数</th><th>总功率限额</th><th>状态</th><th>操作</th></tr></thead><tbody id="tenantTableBody"></tbody></table>
+<table><thead><tr><th>租户名称</th><th>联系人</th><th>电话</th><th class="center">机柜数</th><th class="center">总功率限额</th><th>状态</th><th>操作</th></tr></thead><tbody id="tenantTableBody"></tbody></table>
 </div>
 </div>
 </div>
 
 <!-- PAGE 2: Occupancy Analysis -->
 <div class="page" id="page2">
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-body" style="padding:12px 20px;">
+    <div class="toolbar" style="margin-bottom:0;">
+      <div class="toolbar-left" style="font-weight:700;font-size:15px;color:#111827;">出租率与租户分析过滤</div>
+      <div class="toolbar-right">
+        <select class="filter-select" id="occRegionFilter"><option value="all">全部区域</option><option value="A">A 区</option><option value="B">B 区</option><option value="C">C 区</option><option value="D">D 区</option></select>
+        <div class="search-box" style="margin-left:8px"><span class="si">&#x1F50D;</span><input type="text" placeholder="搜索分析内容..." id="occSearch" style="width:180px"></div>
+        <button class="btn btn-primary btn-sm" onclick="onOccSearch()" style="margin-left:4px">搜索</button>
+        <button class="btn btn-outline btn-sm" onclick="resetOccSearch()" style="margin-left:4px">重置</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="kpi-row">
 <div class="kpi-card"><div class="kpi-info"><div class="kl">A区出租率</div><div class="kv mono">87.5<span class="u">%</span></div><div class="kpi-trend up">&#x2191; +2.5%</div></div></div>
 <div class="kpi-card"><div class="kpi-info"><div class="kl">B区出租率</div><div class="kv mono">83.3<span class="u">%</span></div><div class="kpi-trend up">&#x2191; +1.0%</div></div></div>
@@ -246,14 +269,33 @@ tfoot td.num{text-align:right;font-family:"JetBrains Mono","Fira Code",monospace
 <div class="card"><div class="card-header"><h3>各区域出租率对比</h3><button class="btn btn-outline btn-sm" onclick="openExport('出租率分析报告')">导出报告</button></div><div class="card-body"><div class="chart-box" id="chartOccBar"></div></div></div>
 <div class="card"><div class="card-header"><h3>出租率趋势</h3></div><div class="card-body"><div class="chart-box" id="chartOccLine"></div></div></div>
 </div>
-<div class="split-row">
-<div class="card"><div class="card-header"><h3>租户机柜分布</h3></div><div class="card-body"><div class="chart-box" id="chartTenantPie"></div></div></div>
-<div class="card"><div class="card-header"><h3>租户综合评估</h3></div><div class="card-body"><div class="chart-box" id="chartTenantRadar"></div></div></div>
+<div class="card">
+<div class="card-header"><h3>租户机柜分布</h3></div>
+<div class="card-body"><div class="chart-box" id="chartTenantPie" style="height:320px;"></div></div>
 </div>
 </div>
 
 <!-- PAGE 3: Over-power Detection -->
 <div class="page" id="page3">
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-body" style="padding:12px 20px;">
+    <div class="toolbar" style="margin-bottom:0;">
+      <div class="toolbar-left" style="font-weight:700;font-size:15px;color:#111827;">超额用电识别过滤</div>
+      <div class="toolbar-right" style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:4px;font-size:13px;color:#374151;">
+          <span style="font-weight:600;">时间:</span>
+          <input type="date" id="powerStartDate" style="padding:5px 6px;border:1px solid #D1D5DB;border-radius:6px;font-size:12px;" />
+          <span style="color:#9CA3AF;">至</span>
+          <input type="date" id="powerEndDate" style="padding:5px 6px;border:1px solid #D1D5DB;border-radius:6px;font-size:12px;" />
+        </div>
+        <select class="filter-select" id="powerRegionFilter"><option value="all">全部区域</option><option value="A">A 区</option><option value="B">B 区</option><option value="C">C 区</option><option value="D">D 区</option></select>
+        <div class="search-box" style="margin-left:2px"><span class="si">&#x1F50D;</span><input type="text" placeholder="搜索机柜/租户..." id="powerSearch" style="width:140px"></div>
+        <button class="btn btn-primary btn-sm" onclick="onPowerSearch()" style="margin-left:2px">搜索</button>
+        <button class="btn btn-outline btn-sm" onclick="resetPowerSearch()" style="margin-left:2px">重置</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="kpi-row">
 <div class="kpi-card"><div class="kpi-info"><div class="kl">超额机柜数</div><div class="kv mono">5<span class="u">个</span></div><div class="kpi-trend" style="color:#DC2626">需立即处理</div></div><div class="stat-mini-icon red" style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">&#x26A1;</div></div>
 <div class="kpi-card"><div class="kpi-info"><div class="kl">预警机柜数</div><div class="kv mono">8<span class="u">个</span></div><div class="kpi-trend warn">接近限额</div></div><div class="stat-mini-icon amber" style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">&#x26A0;</div></div>
@@ -261,15 +303,18 @@ tfoot td.num{text-align:right;font-family:"JetBrains Mono","Fira Code",monospace
 <div class="kpi-card"><div class="kpi-info"><div class="kl">涉及租户</div><div class="kv mono">4<span class="u">家</span></div></div></div>
 </div>
 <div class="card">
-<div class="card-header"><h3>超额用电明细</h3><button class="btn btn-outline btn-sm" onclick="openExport('超额用电报告')">导出报告</button></div>
+<div class="card-header">
+  <h3>超额用电明细</h3>
+  <div style="display:flex;align-items:center;gap:8px;">
+    <select class="filter-select" id="powerTenantFilter" onchange="renderPowerSection()">
+      <option value="all">全部租户</option>
+    </select>
+    <button class="btn btn-outline btn-sm" onclick="openExport('超额用电报告')">导出报告</button>
+  </div>
+</div>
 <div class="card-body" style="padding:0">
 <table><thead><tr><th>机柜编号</th><th>租户</th><th class="num">额定功率</th><th class="num">当前功率</th><th class="num">超额</th><th class="num">超额比例</th><th>持续时间</th><th>操作</th></tr></thead>
-<tbody>
-<tr><td class="mono">A-03</td><td>星辰云计算</td><td class="num">10 kW</td><td class="num" style="color:#DC2626;font-weight:600">12.5 kW</td><td class="num" style="color:#DC2626">+2.5 kW</td><td class="num"><span class="badge badge-red">+25%</span></td><td>2小时15分</td><td><button class="btn-ghost btn-sm" onclick="openPowerDetail('A-03','星辰云计算')">详情</button></td></tr>
-<tr><td class="mono">A-07</td><td>星辰云计算</td><td class="num">10 kW</td><td class="num" style="color:#DC2626;font-weight:600">11.8 kW</td><td class="num" style="color:#DC2626">+1.8 kW</td><td class="num"><span class="badge badge-red">+18%</span></td><td>45分钟</td><td><button class="btn-ghost btn-sm" onclick="openPowerDetail('A-07','星辰云计算')">详情</button></td></tr>
-<tr><td class="mono">B-02</td><td>瀚海网络科技</td><td class="num">8 kW</td><td class="num" style="color:#DC2626;font-weight:600">10.2 kW</td><td class="num" style="color:#DC2626">+2.2 kW</td><td class="num"><span class="badge badge-red">+27.5%</span></td><td>3小时40分</td><td><button class="btn-ghost btn-sm" onclick="openPowerDetail('B-02','瀚海网络科技')">详情</button></td></tr>
-<tr><td class="mono">B-05</td><td>博远数据科技</td><td class="num">8 kW</td><td class="num" style="color:#F59E0B;font-weight:600">9.1 kW</td><td class="num" style="color:#F59E0B">+1.1 kW</td><td class="num"><span class="badge badge-amber">+13.75%</span></td><td>1小时10分</td><td><button class="btn-ghost btn-sm" onclick="openPowerDetail('B-05','博远数据科技')">详情</button></td></tr>
-<tr><td class="mono">D-01</td><td>宏景科技</td><td class="num">6 kW</td><td class="num" style="color:#DC2626;font-weight:600">7.9 kW</td><td class="num" style="color:#DC2626">+1.9 kW</td><td class="num"><span class="badge badge-red">+31.7%</span></td><td>5小时20分</td><td><button class="btn-ghost btn-sm" onclick="openPowerDetail('D-01','宏景科技')">详情</button></td></tr>
+<tbody id="powerTableBody">
 </tbody></table>
 </div>
 </div>
@@ -281,6 +326,19 @@ tfoot td.num{text-align:right;font-family:"JetBrains Mono","Fira Code",monospace
 
 <!-- PAGE 4: Lease Management -->
 <div class="page" id="page4">
+<div class="card" style="margin-bottom:20px;">
+  <div class="card-body" style="padding:12px 20px;">
+    <div class="toolbar" style="margin-bottom:0;">
+      <div class="toolbar-left" style="font-weight:700;font-size:15px;color:#111827;">租约管理过滤</div>
+      <div class="toolbar-right">
+        <select class="filter-select" id="leaseRegionFilter"><option value="all">全部区域</option><option value="A">A 区</option><option value="B">B 区</option><option value="C">C 区</option><option value="D">D 区</option></select>
+        <div class="search-box" style="margin-left:8px"><span class="si">&#x1F50D;</span><input type="text" placeholder="搜索租约/租户/机柜..." id="leaseSearch" style="width:180px"></div>
+        <button class="btn btn-primary btn-sm" onclick="onLeaseSearch()" style="margin-left:4px">搜索</button>
+        <button class="btn btn-outline btn-sm" onclick="resetLeaseSearch()" style="margin-left:4px">重置</button>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="kpi-row">
 <div class="kpi-card"><div class="kpi-info"><div class="kl">有效租约</div><div class="kv mono">28<span class="u">份</span></div></div><div class="stat-mini-icon blue" style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">&#x1F4C4;</div></div>
 <div class="kpi-card"><div class="kpi-info"><div class="kl">30天内到期</div><div class="kv mono">6<span class="u">份</span></div></div><div class="stat-mini-icon amber" style="width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px">&#x26A0;</div></div>
@@ -331,6 +389,24 @@ tfoot td.num{text-align:right;font-family:"JetBrains Mono","Fira Code",monospace
 <div class="modal-header"><h4 id="cabDetailTitle">机柜详情</h4><button class="modal-close" onclick="closeModal('modalCabDetail')">&#xD7;</button></div>
 <div class="modal-body" id="cabDetailBody"></div>
 <div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modalCabDetail')">关闭</button><button class="btn btn-primary" onclick="closeModal('modalCabDetail');openModal('modalAssign')">分配租户</button></div>
+</div>
+</div>
+
+<!-- Tenant Detail Modal -->
+<div class="modal-overlay" id="modalTenantDetail" onclick="if(event.target===this)closeModal('modalTenantDetail')">
+<div class="modal">
+<div class="modal-header"><h4 id="tenantDetailTitle">租户详情</h4><button class="modal-close" onclick="closeModal('modalTenantDetail')">&#xD7;</button></div>
+<div class="modal-body" id="tenantDetailBody"></div>
+<div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modalTenantDetail')">关闭</button></div>
+</div>
+</div>
+
+<!-- Lease Detail Modal -->
+<div class="modal-overlay" id="modalLeaseDetail" onclick="if(event.target===this)closeModal('modalLeaseDetail')">
+<div class="modal">
+<div class="modal-header"><h4 id="leaseDetailTitle">租约详情</h4><button class="modal-close" onclick="closeModal('modalLeaseDetail')">&#xD7;</button></div>
+<div class="modal-body" id="leaseDetailBody"></div>
+<div class="modal-footer"><button class="btn btn-outline" onclick="closeModal('modalLeaseDetail')">关闭</button></div>
 </div>
 </div>
 
@@ -451,6 +527,13 @@ var leases=[
 {id:'LT-2025-009',tenant:'创世达科技',cabs:'C-06,C-07',start:'2025-08-01',end:'2026-08-01',rent:12000,status:'expired'},
 {id:'LT-2025-010',tenant:'云帆网络',cabs:'C-08,C-09',start:'2025-10-01',end:'2026-10-01',rent:10000,status:'expired'}
 ];
+var powerOverList=[
+{cab:'A-03',tenant:'星辰云计算',rated:10,current:12.5,over:'+2.5 kW',ratio:'+25%',badge:'badge-red',duration:'2小时15分'},
+{cab:'A-07',tenant:'星辰云计算',rated:10,current:11.8,over:'+1.8 kW',ratio:'+18%',badge:'badge-red',duration:'45分钟'},
+{cab:'B-02',tenant:'瀚海网络科技',rated:8,current:10.2,over:'+2.2 kW',ratio:'+27.5%',badge:'badge-red',duration:'3小时40分'},
+{cab:'B-05',tenant:'博远数据科技',rated:8,current:9.1,over:'+1.1 kW',ratio:'+13.75%',badge:'badge-amber',duration:'1小时10分'},
+{cab:'D-01',tenant:'宏景科技',rated:6,current:7.9,over:'+1.9 kW',ratio:'+31.7%',badge:'badge-red',duration:'5小时20分'}
+];
 var notifs=[
 {type:'error',title:'超额用电预警',desc:'A-03 机柜功率超出限额 25%',time:'10分钟前',read:false},
 {type:'warn',title:'租约即将到期',desc:'天枢智能系统 租约将于 2026-12-31 到期',time:'1小时前',read:false},
@@ -511,6 +594,42 @@ document.getElementById('cabDetailBody').innerHTML=h;
 openModal('modalCabDetail');
 }
 
+function showTenantDetail(index){
+var name=TN[index];
+var contact=TC[index];
+var phone=TP[index];
+var pwr=TPWR[index];
+var cc=0;
+['A','B','C','D'].forEach(function(z){FC[z].forEach(function(c){if(c.t===name)cc++;});});
+document.getElementById('tenantDetailTitle').textContent='租户详情 - '+name;
+var h='<div class="info-row"><span class="info-label">租户名称</span><span class="info-value">'+name+'</span></div>';
+h+='<div class="info-row"><span class="info-label">联系人</span><span class="info-value">'+contact+'</span></div>';
+h+='<div class="info-row"><span class="info-label">联系电话</span><span class="info-value">'+phone+'</span></div>';
+h+='<div class="info-row"><span class="info-label">已分配机柜数</span><span class="info-value">'+cc+' 个</span></div>';
+h+='<div class="info-row"><span class="info-label">总功率限额</span><span class="info-value">'+pwr+' kW</span></div>';
+h+='<div class="info-row"><span class="info-label">账户状态</span><span class="info-value"><span class="badge badge-green">活跃</span></span></div>';
+document.getElementById('tenantDetailBody').innerHTML=h;
+openModal('modalTenantDetail');
+}
+
+function showLeaseDetail(leaseId){
+var lease=null;
+leases.forEach(function(l){if(l.id===leaseId)lease=l;});
+if(!lease)return;
+document.getElementById('leaseDetailTitle').textContent='租约详情 - '+lease.id;
+var h='<div class="info-row"><span class="info-label">租约编号</span><span class="info-value mono">'+lease.id+'</span></div>';
+h+='<div class="info-row"><span class="info-label">租户名称</span><span class="info-value">'+lease.tenant+'</span></div>';
+h+='<div class="info-row"><span class="info-label">关联机柜</span><span class="info-value mono">'+lease.cabs+'</span></div>';
+h+='<div class="info-row"><span class="info-label">租约起始日</span><span class="info-value">'+lease.start+'</span></div>';
+h+='<div class="info-row"><span class="info-label">租约到期日</span><span class="info-value">'+lease.end+'</span></div>';
+h+='<div class="info-row"><span class="info-label">月租金</span><span class="info-value">\u00A5'+lease.rent.toLocaleString()+'</span></div>';
+var sb=lease.status==='active'?'badge-green':lease.status==='expiring'?'badge-amber':'badge-red';
+var sl=lease.status==='active'?'有效':lease.status==='expiring'?'即将到期':'已过期';
+h+='<div class="info-row"><span class="info-label">当前状态</span><span class="info-value"><span class="badge '+sb+'">'+sl+'</span></span></div>';
+document.getElementById('leaseDetailBody').innerHTML=h;
+openModal('modalLeaseDetail');
+}
+
 function resetCabSearch(){
 document.getElementById('cabSearch').value='';
 document.getElementById('cabStatusFilter').value='all';
@@ -529,7 +648,8 @@ zones.forEach(function(z){
 FC[z].forEach(function(c){
 if(filter!=='all'&&c.s!==filter)return;
 var mapId='MAP-'+z+'-'+c.id.split('-')[1].padStart(3,'0');
-if(search&&c.id.toLowerCase().indexOf(search)===-1&&mapId.toLowerCase().indexOf(search)===-1)return;
+var tenantStr=(c.t||'').toLowerCase();
+if(search&&c.id.toLowerCase().indexOf(search)===-1&&mapId.toLowerCase().indexOf(search)===-1&&tenantStr.indexOf(search)===-1)return;
 rows.push('<tr><td>'+z+' 区</td><td class="mono">'+c.id+'</td><td class="mono">'+mapId+'</td><td><span class="badge '+SB[c.s]+'">'+SL[c.s]+'</span></td><td>'+(c.t||'-')+'</td><td>'+(c.e||'-')+'</td><td>'+(c.s==='free'?'<button class="btn-ghost btn-sm" onclick="openAssignFor(\''+z+'\',\''+c.id+'\')">分配</button>':'<button class="btn-ghost btn-sm" onclick="showCabDetail(\''+z+'\',\''+c.id+'\')">详情</button>')+'</td></tr>');
 });
 });
@@ -543,9 +663,74 @@ TN.forEach(function(n,i){
 var cc=0;
 ['A','B','C','D'].forEach(function(z){FC[z].forEach(function(c){if(c.t===n)cc++;});});
 var sb=cc>0?'<span class="badge badge-green">活跃</span>':'<span class="badge badge-gray">未分配</span>';
-h+='<tr><td style="font-weight:600">'+n+'</td><td>'+TC[i]+'</td><td>'+TP[i]+'</td><td class="num">'+cc+'</td><td class="num">'+TPWR[i]+' kW</td><td>'+sb+'</td><td><button class="btn-ghost btn-sm" onclick="toast(\'查看租户 '+n+' 详情\',\'info\')">详情</button></td></tr>';
+h+='<tr><td style="font-weight:600">'+n+'</td><td>'+TC[i]+'</td><td>'+TP[i]+'</td><td class="center">'+cc+'</td><td class="center">'+TPWR[i]+' kW</td><td>'+sb+'</td><td><button class="btn-ghost btn-sm" onclick="showTenantDetail('+i+')">详情</button></td></tr>';
 });
 tbody.innerHTML=h;
+}
+
+function onOccSearch(){
+  var reg=document.getElementById('occRegionFilter').value;
+  var kw=document.getElementById('occSearch').value.trim();
+  toast('出租率分析已按区域['+(reg==='all'?'全部':reg+'区')+']和关键字['+(kw||'无')+']筛选','info');
+}
+function resetOccSearch(){
+  document.getElementById('occRegionFilter').value='all';
+  document.getElementById('occSearch').value='';
+  toast('出租率分析筛选已重置','success');
+}
+
+function onPowerSearch(){
+  var startVal=document.getElementById('powerStartDate').value;
+  var endVal=document.getElementById('powerEndDate').value;
+  var reg=document.getElementById('powerRegionFilter').value;
+  var kw=document.getElementById('powerSearch').value.trim().toLowerCase();
+  var tbody=document.getElementById('powerTableBody');
+  var filtered=powerOverList.filter(function(item){
+    if(reg!=='all' && !item.cab.startsWith(reg)) return false;
+    if(kw && item.cab.toLowerCase().indexOf(kw)===-1 && item.tenant.toLowerCase().indexOf(kw)==-1) return false;
+    return true;
+  });
+  tbody.innerHTML=filtered.map(function(item){
+    return '<tr><td class="mono">'+item.cab+'</td><td>'+item.tenant+'</td><td class="num">'+item.rated+' kW</td><td class="num" style="color:#DC2626;font-weight:600">'+item.current+' kW</td><td class="num" style="color:#DC2626">'+item.over+'</td><td class="num"><span class="badge '+item.badge+'">'+item.ratio+'</span></td><td>'+item.duration+'</td><td><button class="btn-ghost btn-sm" onclick="openPowerDetail(\''+item.cab+'\',\''+item.tenant+'\')">详情</button></td></tr>';
+  }).join('');
+  toast('已加载 ['+startVal+' 至 '+endVal+'] 的超额数据','success');
+}
+function resetPowerSearch(){
+  var today=new Date().toISOString().split('T')[0];
+  document.getElementById('powerStartDate').value=today;
+  document.getElementById('powerEndDate').value=today;
+  document.getElementById('powerRegionFilter').value='all';
+  document.getElementById('powerSearch').value='';
+  renderPowerSection();
+  toast('超额用电识别筛选已重置为今日实时数据','success');
+}
+
+function onLeaseSearch(){
+  var reg=document.getElementById('leaseRegionFilter').value;
+  var kw=document.getElementById('leaseSearch').value.trim().toLowerCase();
+  var filter=document.getElementById('leaseStatusFilter').value;
+  var tbody=document.getElementById('leaseTableBody');
+  var filtered=leases.filter(function(l){
+    if(filter!=='all'&&l.status!==filter)return false;
+    if(reg!=='all'){
+      var matchReg=l.cabs.split(',').some(function(c){return c.trim().startsWith(reg);});
+      if(!matchReg)return false;
+    }
+    if(kw&&l.id.toLowerCase().indexOf(kw)===-1&&l.tenant.toLowerCase().indexOf(kw)==-1&&l.cabs.toLowerCase().indexOf(kw)===-1)return false;
+    return true;
+  });
+  tbody.innerHTML=filtered.map(function(l){
+    var sb=l.status==='active'?'badge-green':l.status==='expiring'?'badge-amber':'badge-red';
+    var sl=l.status==='active'?'有效':l.status==='expiring'?'即将到期':'已过期';
+    return '<tr><td class="mono">'+l.id+'</td><td style="font-weight:600">'+l.tenant+'</td><td class="mono">'+l.cabs+'</td><td>'+l.start+'</td><td>'+l.end+'</td><td class="num">\u00A5'+l.rent.toLocaleString()+'</td><td><span class="badge '+sb+'">'+sl+'</span></td><td><button class="btn-ghost btn-sm" onclick="showLeaseDetail(\''+l.id+'\')">详情</button></td></tr>';
+  }).join('');
+  toast('租约列表筛选完成','success');
+}
+function resetLeaseSearch(){
+  document.getElementById('leaseRegionFilter').value='all';
+  document.getElementById('leaseSearch').value='';
+  renderLeaseTable();
+  toast('租约管理筛选已重置','success');
 }
 
 function renderLeaseTable(){
@@ -555,7 +740,7 @@ var rows=leases.filter(function(l){return filter==='all'||l.status===filter;});
 tbody.innerHTML=rows.map(function(l){
 var sb=l.status==='active'?'badge-green':l.status==='expiring'?'badge-amber':'badge-red';
 var sl=l.status==='active'?'有效':l.status==='expiring'?'即将到期':'已过期';
-return '<tr><td class="mono">'+l.id+'</td><td style="font-weight:600">'+l.tenant+'</td><td class="mono">'+l.cabs+'</td><td>'+l.start+'</td><td>'+l.end+'</td><td class="num">\u00A5'+l.rent.toLocaleString()+'</td><td><span class="badge '+sb+'">'+sl+'</span></td><td>'+(l.status==='expiring'?'<button class="btn-ghost btn-sm" onclick="openRenew(\''+l.id+'\')">续约</button>':'<button class="btn-ghost btn-sm" onclick="toast(\'查看租约 '+l.id+' 详情\',\'info\')">详情</button>')+'</td></tr>';
+return '<tr><td class="mono">'+l.id+'</td><td style="font-weight:600">'+l.tenant+'</td><td class="mono">'+l.cabs+'</td><td>'+l.start+'</td><td>'+l.end+'</td><td class="num">\u00A5'+l.rent.toLocaleString()+'</td><td><span class="badge '+sb+'">'+sl+'</span></td><td><button class="btn-ghost btn-sm" onclick="showLeaseDetail(\''+l.id+'\')">详情</button></td></tr>';
 }).join('');
 renderExpiring();
 }
@@ -568,6 +753,21 @@ var days=Math.max(0,Math.ceil((new Date(l.end)-new Date())/(86400000)));
 var color=days<=30?'color:#DC2626;font-weight:600':'color:#F59E0B';
 return '<tr><td class="mono">'+l.id+'</td><td style="font-weight:600">'+l.tenant+'</td><td class="mono">'+l.cabs+'</td><td>'+l.end+'</td><td style="'+color+'">'+days+' 天</td><td><button class="btn btn-primary btn-sm" onclick="openRenew(\''+l.id+'\')">续约</button></td></tr>';
 }).join('');
+}
+
+function renderPowerSection(){
+var tenantFilter=document.getElementById('powerTenantFilter').value;
+var tbody=document.getElementById('powerTableBody');
+var filtered=powerOverList.filter(function(item){
+  return tenantFilter==='all'||item.tenant===tenantFilter;
+});
+tbody.innerHTML=filtered.map(function(item){
+  return '<tr><td class="mono">'+item.cab+'</td><td>'+item.tenant+'</td><td class="num">'+item.rated+' kW</td><td class="num" style="color:#DC2626;font-weight:600">'+item.current+' kW</td><td class="num" style="color:#DC2626">'+item.over+'</td><td class="num"><span class="badge '+item.badge+'">'+item.ratio+'</span></td><td>'+item.duration+'</td><td><button class="btn-ghost btn-sm" onclick="openPowerDetail(\''+item.cab+'\',\''+item.tenant+'\')">详情</button></td></tr>';
+}).join('');
+
+if(chartsInit[3]){
+  updatePowerPieChart(tenantFilter);
+}
 }
 
 function addTenant(){
@@ -698,22 +898,32 @@ line.setOption({tooltip:{trigger:'axis'},legend:{data:['A区','B区','C区','D�
 var pie=echarts.init(document.getElementById('chartTenantPie'));
 var tcc=TN.map(function(n){var c=0;['A','B','C','D'].forEach(function(z){FC[z].forEach(function(cb){if(cb.t===n)c++;});});return{name:n,value:c};}).filter(function(t){return t.value>0;});
 pie.setOption({tooltip:{trigger:'item',formatter:'{b}: {c}个 ({d}%)'},legend:{type:'scroll',bottom:0,textStyle:{fontSize:11}},series:[{type:'pie',radius:['40%','70%'],center:['50%','45%'],data:tcc,label:{show:true,formatter:'{b}\n{d}%',fontSize:11},emphasis:{itemStyle:{shadowBlur:10,shadowColor:'rgba(0,0,0,0.2)'}}}]});
-var radar=echarts.init(document.getElementById('chartTenantRadar'));
-radar.setOption({tooltip:{},legend:{data:['星辰云计算','瀚海网络科技','博远数据科技'],bottom:0,textStyle:{fontSize:11}},radar:{indicator:[{name:'机柜数',max:10},{name:'用电量',max:50},{name:'租约时长',max:12},{name:'付费及时',max:100},{name:'合规评分',max:100}],radius:'60%'},series:[{type:'radar',data:[{value:[6,40,12,95,90],name:'星辰云计算',lineStyle:{color:'#1E4E8C'},itemStyle:{color:'#1E4E8C'},areaStyle:{color:'rgba(30,78,140,0.15)'}},{value:[4,26,12,88,85],name:'瀚海网络科技',lineStyle:{color:'#0E9F6E'},itemStyle:{color:'#0E9F6E'},areaStyle:{color:'rgba(14,159,110,0.15)'}},{value:[4,24,12,92,88],name:'博远数据科技',lineStyle:{color:'#F59E0B'},itemStyle:{color:'#F59E0B'},areaStyle:{color:'rgba(245,158,11,0.15)'}}]}]});
 }
 
 function initCharts3(){
 chartsInit[3]=true;
 var bar=echarts.init(document.getElementById('chartPowerBar'));
 bar.setOption({tooltip:{trigger:'axis'},xAxis:{type:'category',data:['星辰云计算','瀚海网络科技','博远数据科技','宏景科技'],axisLabel:{fontSize:11,rotate:15}},yAxis:{type:'value',name:'kW'},grid:{left:50,right:20,top:30,bottom:50},series:[{name:'超额电量',type:'bar',data:[4.3,2.2,1.1,1.9],barWidth:36,itemStyle:{color:'#DC2626',borderRadius:[4,4,0,0]},label:{show:true,position:'top',formatter:'{c} kW',fontSize:11}},{name:'限额',type:'bar',data:[10,8,8,6],barWidth:36,itemStyle:{color:'#E5E7EB',borderRadius:[4,4,0,0]},label:{show:true,position:'top',fontSize:11,color:'#6B7280'}}]});
+updatePowerPieChart('all');
+}
+
+function updatePowerPieChart(tenantFilter){
 var pie=echarts.init(document.getElementById('chartPowerPie'));
-pie.setOption({tooltip:{trigger:'item',formatter:'{b}: {c}次 ({d}%)'},legend:{bottom:0,textStyle:{fontSize:11}},series:[{type:'pie',radius:['40%','70%'],center:['50%','45%'],data:[{value:12,name:'持续超额',itemStyle:{color:'#DC2626'}},{value:8,name:'间歇超额',itemStyle:{color:'#F59E0B'}},{value:5,name:'峰值超额',itemStyle:{color:'#3B82F6'}}],label:{show:true,formatter:'{b}\n{d}%',fontSize:11}}]});
+var pieData=[{value:12,name:'持续超额',itemStyle:{color:'#DC2626'}},{value:8,name:'间歇超额',itemStyle:{color:'#F59E0B'}},{value:5,name:'峰值超额',itemStyle:{color:'#3B82F6'}}];
+if(tenantFilter==='星辰云计算'){
+  pieData=[{value:6,name:'持续超额',itemStyle:{color:'#DC2626'}},{value:2,name:'间歇超额',itemStyle:{color:'#F59E0B'}},{value:1,name:'峰值超额',itemStyle:{color:'#3B82F6'}}];
+}else if(tenantFilter==='瀚海网络科技'){
+  pieData=[{value:3,name:'持续超额',itemStyle:{color:'#DC2626'}},{value:2,name:'间歇超额',itemStyle:{color:'#F59E0B'}},{value:1,name:'峰值超额',itemStyle:{color:'#3B82F6'}}];
+}else if(tenantFilter==='博远数据科技'){
+  pieData=[{value:1,name:'持续超额',itemStyle:{color:'#DC2626'}},{value:2,name:'间歇超额',itemStyle:{color:'#F59E0B'}},{value:1,name:'峰值超额',itemStyle:{color:'#3B82F6'}}];
+}else if(tenantFilter==='宏景科技'){
+  pieData=[{value:2,name:'持续超额',itemStyle:{color:'#DC2626'}},{value:2,name:'间歇超额',itemStyle:{color:'#F59E0B'}},{value:2,name:'峰值超额',itemStyle:{color:'#3B82F6'}}];
+}
+pie.setOption({tooltip:{trigger:'item',formatter:'{b}: {c}次 ({d}%)'},legend:{bottom:0,textStyle:{fontSize:11}},series:[{type:'pie',radius:['40%','70%'],center:['50%','45%'],data:pieData,label:{show:true,formatter:'{b}\n{d}%',fontSize:11}}]});
 }
 
 function toggleSwitch(el){el.classList.toggle('on');toast('设置已更新','success');}
 function toggleCollapsible(el){el.classList.toggle('open');var b=el.nextElementSibling;if(el.classList.contains('open')){b.style.maxHeight=b.scrollHeight+'px';}else{b.style.maxHeight='0';}}
-function onRegionChange(){renderCabTable();}
-function onGlobalSearch(){var q=document.getElementById('globalSearch').value.trim();if(q){goPage(1);document.getElementById('cabSearch').value=q;renderCabTable();}else{document.getElementById('cabSearch').value='';renderCabTable();}}
 
 function openExport(title){
 document.getElementById('exportTitle').textContent=title;
@@ -742,10 +952,17 @@ function populateTenantSelects(){
 var opts=TN.map(function(n){return '<option value="'+n+'">'+n+'</option>';}).join('');
 var bt=document.getElementById('batchTenant');if(bt)bt.innerHTML=opts;
 var nl=document.getElementById('nlTenant');if(nl)nl.innerHTML=opts;
+var ptf=document.getElementById('powerTenantFilter');if(ptf)ptf.innerHTML='<option value="all">全部租户</option>'+opts;
 }
 
 document.addEventListener('DOMContentLoaded',function(){
-renderCabTable();renderTenantTable();renderLeaseTable();
+var today=new Date().toISOString().split('T')[0];
+var psd=document.getElementById('powerStartDate');
+var ped=document.getElementById('powerEndDate');
+if(psd) psd.value=today;
+if(ped) ped.value=today;
+
+renderCabTable();renderTenantTable();renderLeaseTable();renderPowerSection();
 populateTenantSelects();initCharts0();checkDot();
 });
 document.addEventListener('click',function(e){
